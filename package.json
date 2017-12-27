@@ -15,6 +15,6 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "firebase-deploy": "firebase deploy --token \"$FIREBASE_TOKEN\" --project ml8-visualizer"
+    "firebase-deploy": "npm install --prefix ./functions && firebase deploy --token \"$FIREBASE_TOKEN\" --project ml8-visualizer"
   }
 }
