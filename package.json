@@ -8,9 +8,12 @@
   },
   "devDependencies": {
     "firebase-tools": "^3.16.0",
-    "react-scripts": "1.0.0"
+    "react-scripts": "1.0.0",
+    "serve": "^6.4.3"
   },
   "scripts": {
+    "now-build": "node scripts/debug-build.js",
+    "now-start": "serve --single ./build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
