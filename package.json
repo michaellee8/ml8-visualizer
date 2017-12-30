@@ -3,11 +3,17 @@
   "description": "",
   "version": "0.0.0",
   "dependencies": {
+    "firebase": "^4.8.1",
+    "jss": "^9.4.0",
     "react": "16.0.0",
     "react-dom": "16.0.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-flow": "^6.23.0",
     "firebase-tools": "^3.16.0",
+    "flow": "^0.2.3",
+    "flow-bin": "^0.62.0",
     "react-scripts": "1.0.0",
     "serve": "^6.4.3"
   },
@@ -18,6 +24,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "firebase-deploy": "npm install --prefix ./functions && firebase deploy --token \"$FIREBASE_TOKEN\" --project ml8-visualizer"
+    "firebase-deploy": "npm install --prefix ./functions && firebase deploy --token \"$FIREBASE_TOKEN\" --project ml8-visualizer",
+    "flow": "flow"
   }
 }
