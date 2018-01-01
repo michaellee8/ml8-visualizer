@@ -6,11 +6,15 @@
     "firebase": "^4.8.1",
     "jss": "^9.4.0",
     "react": "16.0.0",
-    "react-dom": "16.0.0"
+    "react-dom": "16.0.0",
+    "react-linkify": "^0.2.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
+    "babel-eslint": "^8.1.2",
     "babel-preset-flow": "^6.23.0",
+    "eslint": "^4.14.0",
+    "eslint-plugin-flowtype": "^2.40.1",
     "firebase-tools": "^3.16.0",
     "flow": "^0.2.3",
     "flow-bin": "^0.62.0",
