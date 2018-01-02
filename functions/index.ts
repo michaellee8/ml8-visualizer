@@ -1,7 +1,6 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-require("firebase-admin/firestore");
-admin.initializeApp(functions.config.firebase);
+admin.initializeApp(functions.config().firebase);
 
 const mockDb = {
   nodes: {
