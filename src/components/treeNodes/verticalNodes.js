@@ -31,6 +31,7 @@ class VerticalNodes extends React.Component<Props, States> {
       .doc(this.props.userId)
       .collection("connections")
       .where("src", "==", this.props.nodeId)
+      .orderBy("stamp", "desc")
       .onSnapshot(querySnapshot => {
         var datas = [];
         querySnapshot.forEach(doc => datas.push(doc.data()));
@@ -76,6 +77,7 @@ class VerticalNodes extends React.Component<Props, States> {
                     >
                       {this.state.connectionData.map(connectionData => (
                         <SingleNodes
+                          key={connectionData.des}
                           nodeId={connectionData.des}
                           userId={this.props.userId}
                           isDragDisabled={false}
