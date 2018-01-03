@@ -5,6 +5,13 @@ import UpIcon from "material-ui-icons/ChangeHistory";
 import EditIcon from "material-ui-icons/ModeEdit";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import HorizontalNodes from "./horizontalNodes";
+import Button from "material-ui/Button";
+import Dialog, {
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle
+} from "material-ui/Dialog";
 
 type Props = { nodeId: string, userId: string, classes: any };
 type State = { disableEditDrag: boolean, horizontalDropDisabled: boolean };

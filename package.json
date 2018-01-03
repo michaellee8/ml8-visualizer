@@ -15,6 +15,7 @@
     "react-firebaseui": "^1.0.10",
     "react-jss": "^8.2.0",
     "react-linkify": "^0.2.1",
+    "react-modal": "^3.1.10",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2"
   },
