@@ -1,5 +1,4 @@
 import React from "react";
-import firebase from "firebase";
 import { FirebaseAuth } from "react-firebaseui";
 import firebase from "firebase";
 import { withRouter } from "react-router";
@@ -17,7 +16,8 @@ class LoginComponent extends React.Component {
             signInFlow: "redirect",
             signInOptions: [
               firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-              firebase.auth.FacebookAuthProvider.PROVIDER_ID
+              firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+              firebase.auth.EmailAuthProvider.PROVIDER_ID
             ],
             callbacks: {
               signInSuccess: () => {

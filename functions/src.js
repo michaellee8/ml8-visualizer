@@ -4,7 +4,7 @@ admin.initializeApp(functions.config().firebase);
 
 const mockDb = {
   nodes: {
-    aHENV: {
+    root: {
       text: "Most used websites"
     },
     I5zla: {
@@ -47,17 +47,17 @@ const mockDb = {
   connections: {
     "7AU6e": {
       type: "primary",
-      src: "aHENV",
+      src: "root",
       des: "I5zla"
     },
     dZ5TM: {
       type: "primary",
-      src: "aHENV",
+      src: "root",
       des: "sx4zC"
     },
     "620BG": {
       type: "primary",
-      src: "aHENV",
+      src: "root",
       des: "KhzwL"
     },
     "3XZFs": {

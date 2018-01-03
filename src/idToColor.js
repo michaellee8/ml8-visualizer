@@ -15,5 +15,5 @@ function intToRGB(i) {
 }
 
 export default function idToColor(id: string) {
-  return randomColor({ luminosity: "light", hue: intToRGB(hashCode(id)) });
+  return intToRGB(hashCode(id));
 }

@@ -16,7 +16,11 @@ type Props = {
 };
 type State = { nodeData: any, connectionData: any };
 
-class VerticalNodes extends React.Component<Props, States> {
+class VerticalNodes extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+    this.state = { nodeData: null, connectionData: null };
+  }
   componentWillMount() {
     this.treeNodeWatcher = firebase
       .firestore()
@@ -44,55 +48,70 @@ class VerticalNodes extends React.Component<Props, States> {
   }
   render() {
     return (
-      <ErrorBoundary
-        onError={(error: Error, componentStack: string) => console.error(error)}
-        FallbackComponent={() => <div>{this.props.nodeId}</div>}
-      >
-        <Draggable
-          draggableId={`${this.props.userId}/${this.props.nodeId}`}
-          isDragDisabled={this.props.isDragDisabled}
+      <div style={{ display: "block" }}>
+        <ErrorBoundary
+          onError={(error: Error, componentStack: string) =>
+            console.error(error)
+          }
+          FallbackComponent={() => <div>{this.props.nodeId}</div>}
         >
-          {(provided, snapshot) => (
-            <div className={this.props.classes.treeNodeRoot}>
-              <div
-                ref={provided.innerRef}
-                style={{ color: this.props.color, ...provided.draggableStyle }}
-                {...provided.dragHandleProps}
-              >
-                <Linkify className={this.props.classes.treeNodeContent}>
-                  {this.state.nodeData.text}
-                </Linkify>
-                <Droppable
-                  droppableId={`${this.props.userId}/${this.props.nodeId}`}
-                  isDropDisabled={this.props.isDropDisabled}
-                >
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      style={{
-                        backgroundColor: idToColor(
-                          `${this.props.userId}/${this.props.nodeId}`
-                        )
-                      }}
+          {this.state.nodeData && this.state.connectionData ? (
+            <Draggable
+              type="COLUMN"
+              draggableId={`${this.props.userId}/${this.props.nodeId}/vertical`}
+              isDragDisabled={this.props.isDragDisabled}
+            >
+              {(provided, snapshot) => (
+                <div>
+                  <div
+                    ref={provided.innerRef}
+                    style={{
+                      backgroundColor: idToColor(
+                        `${this.props.userId}/${this.props.nodeId}`
+                      ),
+                      ...provided.draggableStyle
+                    }}
+                    {...provided.dragHandleProps}
+                  >
+                    <Linkify className={this.props.classes.treeNodeContent}>
+                      {this.state.nodeData.text}
+                    </Linkify>
+                    <Droppable
+                      droppableId={`${this.props.userId}/${this.props.nodeId}`}
+                      isDropDisabled={this.props.isDropDisabled}
                     >
-                      {this.state.connectionData.map(connectionData => (
-                        <SingleNodes
-                          key={connectionData.des}
-                          nodeId={connectionData.des}
-                          userId={this.props.userId}
-                          isDragDisabled={false}
-                        />
-                      ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
-              {provided.placeholder}
-            </div>
+                      {(provided, snapshot) => (
+                        <div
+                          className={this.props.classes.treeNodeRoot}
+                          ref={provided.innerRef}
+                          style={{
+                            backgroundColor: idToColor(
+                              `${this.props.userId}/${this.props.nodeId}`
+                            )
+                          }}
+                        >
+                          {this.state.connectionData.map(connectionData => (
+                            <SingleNodes
+                              key={connectionData.des}
+                              nodeId={connectionData.des}
+                              userId={this.props.userId}
+                              isDragDisabled={false}
+                            />
+                          ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </div>
+                  {provided.placeholder}
+                </div>
+              )}
+            </Draggable>
+          ) : (
+            <div>loading</div>
           )}
-        </Draggable>
-      </ErrorBoundary>
+        </ErrorBoundary>
+      </div>
     );
   }
 }
@@ -105,8 +124,7 @@ export default injectSheet({
     margin: "0.5em",
     textAlign: "center",
     /* border: 0.1em solid black;*/
-    paddingLeft: "0.5em",
-    paddingRight: "0.5em",
+    padding: "0.5em",
     boxSizing: "border-box",
     flex: "1 1 auto"
   },

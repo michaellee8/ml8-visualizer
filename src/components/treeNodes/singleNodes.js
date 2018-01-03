@@ -15,7 +15,11 @@ type Props = {
 };
 type State = { nodeData: any };
 
-class SingleNodes extends React.Component<Props, States> {
+class SingleNodes extends React.Component<Props, State> {
+  constructor(props) {
+    super(props);
+    this.state = { nodeData: null };
+  }
   componentWillMount() {
     this.treeNodeWatcher = firebase
       .firestore()
@@ -34,13 +38,14 @@ class SingleNodes extends React.Component<Props, States> {
         onError={(error: Error, componentStack: string) => console.error(error)}
         FallbackComponent={() => <div>{this.props.nodeId}</div>}
       >
-        <Draggable
-          draggableId={`${this.props.userId}/${this.props.nodeId}`}
-          isDragDisabled={this.props.isDragDisabled}
-        >
-          {(provided, snapshot) => (
-            <div className={this.props.classes.treeNodeRoot}>
+        {this.state.nodeData ? (
+          <Draggable
+            draggableId={`${this.props.userId}/${this.props.nodeId}/single`}
+            isDragDisabled={this.props.isDragDisabled}
+          >
+            {(provided, snapshot) => (
               <div
+                className={this.props.classes.treeNodeRoot}
                 ref={provided.innerRef}
                 style={{
                   backgroundColor: idToColor(
@@ -50,14 +55,18 @@ class SingleNodes extends React.Component<Props, States> {
                 }}
                 {...provided.dragHandleProps}
               >
-                <Linkify className={this.props.classes.treeNodeContent}>
-                  {this.state.nodeData.text}
-                </Linkify>
+                <div>
+                  <Linkify className={this.props.classes.treeNodeContent}>
+                    {this.state.nodeData.text}
+                  </Linkify>
+                </div>
+                {provided.placeholder}
               </div>
-              {provided.placeholder}
-            </div>
-          )}
-        </Draggable>
+            )}
+          </Draggable>
+        ) : (
+          <div>loading</div>
+        )}
       </ErrorBoundary>
     );
   }
@@ -71,8 +80,7 @@ export default injectSheet({
     margin: "0.5em",
     textAlign: "center",
     /* border: 0.1em solid black;*/
-    paddingLeft: "0.5em",
-    paddingRight: "0.5em",
+    padding: "1em",
     boxSizing: "border-box",
     flex: "1 1 auto"
   },
