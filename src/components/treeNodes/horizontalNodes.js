@@ -42,9 +42,40 @@ class HorizontalNodes extends React.Component<Props, State> {
         this.setState({ connectionData: datas });
       });
   }
+  componentWillReceiveProps(nextProps) {
+    if (this.treeNodeWatcher) {
+      this.treeNodeWatcher();
+    }
+    if (this.treeConnectionWatcher) {
+      this.treeConnectionWatcher();
+    }
+    this.treeNodeWatcher = firebase
+      .firestore()
+      .collection("users")
+      .doc(nextProps.userId)
+      .collection("nodes")
+      .doc(nextProps.nodeId)
+      .onSnapshot(doc => this.setState({ nodeData: doc.data() }));
+    this.treeConnectionWatcher = firebase
+      .firestore()
+      .collection("users")
+      .doc(nextProps.userId)
+      .collection("connections")
+      .where("src", "==", nextProps.nodeId)
+      .orderBy("stamp", "desc")
+      .onSnapshot(querySnapshot => {
+        var datas = [];
+        querySnapshot.forEach(doc => datas.push(doc.data()));
+        this.setState({ connectionData: datas });
+      });
+  }
   componentWillUnmount() {
-    this.treeNodeWatcher();
-    this.treeConnectionWatcher();
+    if (this.treeNodeWatcher) {
+      this.treeNodeWatcher();
+    }
+    if (this.treeConnectionWatcher) {
+      this.treeConnectionWatcher();
+    }
   }
   render() {
     return (
@@ -54,7 +85,7 @@ class HorizontalNodes extends React.Component<Props, State> {
       >
         {this.state.nodeData && this.state.connectionData ? (
           <Draggable
-            draggableId={`${this.props.userId}/${this.props.nodeId}/horizontal`}
+            draggableId={`${this.props.userId}/${this.props.nodeId}`}
             isDragDisabled={true}
           >
             {(provided, snapshot) => (
@@ -85,7 +116,8 @@ class HorizontalNodes extends React.Component<Props, State> {
                         style={{
                           backgroundColor: idToColor(
                             `${this.props.userId}/${this.props.nodeId}`
-                          )
+                          ),
+                          minWidth: "7em"
                         }}
                       >
                         <div className={this.props.classes.flexContainer}>

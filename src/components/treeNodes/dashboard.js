@@ -12,8 +12,9 @@ import Dialog, {
   DialogContentText,
   DialogTitle
 } from "material-ui/Dialog";
+import { withRouter } from "react-router";
 
-type Props = { nodeId: string, userId: string, classes: any };
+type Props = { nodeId: string, userId: string, classes: any, history: any };
 type State = { disableEditDrag: boolean, horizontalDropDisabled: boolean };
 
 class Dashboard extends React.Component<Props, State> {
@@ -24,7 +25,63 @@ class Dashboard extends React.Component<Props, State> {
     this.state = { disableEditDrag: false, horizontalDropDisabled: false };
   }
   onDragStart(initial) {}
-  onDragEnd() {}
+  onDragEnd(result) {
+    // No destination
+    if (!result.destination) {
+      return;
+    }
+
+    // Drop to upDrop -> navigate
+    if (
+      result.destination.droppableId == "upDrop" ||
+      result.destination.droppableId == "upDropCol"
+    ) {
+      this.props.history.push(`/${result.draggableId}`);
+      return;
+    }
+
+    // Drop to editDrop -> edit component
+    if (
+      result.destination.droppableId == "editDrop" ||
+      result.destination.droppableId == "editDropCol"
+    ) {
+      // Implement later
+      return;
+    }
+
+    // Drag from editDrag -> insert new component
+    if (
+      result.draggableId == "editDrag" ||
+      result.draggableId == "editDragCol"
+    ) {
+      // Implement Later
+      return;
+    }
+
+    // Insert to correct place for reordering/inserting
+    firebase
+      .firestore()
+      .collection("users")
+      .doc(this.props.userId)
+      .collection("connections")
+      .where("src", "==", result.destination.droppableId.split("/")[1])
+      .orderBy("stamp", "desc")
+      .get(querySnapshot => {
+        var datas = [];
+        querySnapshot.forEach(doc => datas.push(doc));
+        var itemIndex = -1;
+        for (var i = 0; i < datas.length; i++) {
+          if (datas[i].data().des == result.draggableId.split("/")[1]) {
+            itemIndex = i;
+            break;
+          }
+        }
+        if (itemIndex == -1) {
+          throw "Cannot find the corresponding connection";
+        }
+        const newStamp = ite;
+      });
+  }
   render() {
     return (
       <div>
@@ -112,7 +169,7 @@ class Dashboard extends React.Component<Props, State> {
               </Droppable>
             </div>
             <div className={this.props.classes.appBarButton}>
-              <Droppable type="COLUMN" droppableId="upDrop">
+              <Droppable type="COLUMN" droppableId="upDropCol">
                 {(provided, snapshot) => (
                   <div
                     className={this.props.classes.treeNodeRoot}
@@ -142,12 +199,12 @@ class Dashboard extends React.Component<Props, State> {
               </Droppable>
             </div>
             <div className={this.props.classes.appBarButton}>
-              <Droppable type="COLUMN" droppableId="editDrop">
+              <Droppable type="COLUMN" droppableId="editDropCol">
                 {(provided, snapshot) => (
                   <div ref={provided.innerRef}>
                     <Draggable
                       type="COLUMN"
-                      draggableId="editDrag"
+                      draggableId="editDragCol"
                       isDragDisabled={this.state.disableEditDrag}
                     >
                       {(provided, snapshot) => (
@@ -203,33 +260,35 @@ class Dashboard extends React.Component<Props, State> {
   }
 }
 
-export default injectSheet({
-  treeNodeRoot: {
-    // minHeight: "2em",
-    borderRadius: "0.5em",
-    // width: "100%",
-    margin: "0.5em",
-    textAlign: "center",
-    /* border: 0.1em solid black;*/
-    paddingLeft: "0.5em",
-    paddingRight: "0.5em",
-    boxSizing: "border-box",
-    flex: "1 1 auto"
-  },
-  treeNodeContent: {
-    margin: "0.5em"
-    // "mix-blend-mode": "difference"
-  },
-  appBar: {
-    width: "100%",
-    position: "static",
-    "z-index": "1000",
-    top: "0",
-    left: "0",
-    height: "50px",
-    border: "none",
-    "background-color": "rgba(255,255,255,1)",
-    "box-shadow": "0px 3px 2px 0px rgba(50, 50, 50, 0.2)"
-  },
-  appBarButton: { width: "25%", height: "100%", display: "inline-block" }
-})(Dashboard);
+export default withRouter(
+  injectSheet({
+    treeNodeRoot: {
+      // minHeight: "2em",
+      borderRadius: "0.5em",
+      // width: "100%",
+      margin: "0.5em",
+      textAlign: "center",
+      /* border: 0.1em solid black;*/
+      paddingLeft: "0.5em",
+      paddingRight: "0.5em",
+      boxSizing: "border-box",
+      flex: "1 1 auto"
+    },
+    treeNodeContent: {
+      margin: "0.5em"
+      // "mix-blend-mode": "difference"
+    },
+    appBar: {
+      width: "100%",
+      position: "static",
+      "z-index": "1000",
+      top: "0",
+      left: "0",
+      height: "50px",
+      border: "none",
+      "background-color": "rgba(255,255,255,1)",
+      "box-shadow": "0px 3px 2px 0px rgba(50, 50, 50, 0.2)"
+    },
+    appBarButton: { width: "25%", height: "100%", display: "inline-block" }
+  })(Dashboard)
+);

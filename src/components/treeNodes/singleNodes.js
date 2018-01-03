@@ -29,8 +29,23 @@ class SingleNodes extends React.Component<Props, State> {
       .doc(this.props.nodeId)
       .onSnapshot(doc => this.setState({ nodeData: doc.data() }));
   }
+  componentWillReceiveProps(nextProps) {
+    if (this.treeNodeWatcher) {
+      this.treeNodeWatcher();
+    }
+
+    this.treeNodeWatcher = firebase
+      .firestore()
+      .collection("users")
+      .doc(nextProps.userId)
+      .collection("nodes")
+      .doc(nextProps.nodeId)
+      .onSnapshot(doc => this.setState({ nodeData: doc.data() }));
+  }
   componentWillUnmount() {
-    this.treeNodeWatcher();
+    if (this.treeNodeWatcher) {
+      this.treeNodeWatcher();
+    }
   }
   render() {
     return (
@@ -40,7 +55,7 @@ class SingleNodes extends React.Component<Props, State> {
       >
         {this.state.nodeData ? (
           <Draggable
-            draggableId={`${this.props.userId}/${this.props.nodeId}/single`}
+            draggableId={`${this.props.userId}/${this.props.nodeId}`}
             isDragDisabled={this.props.isDragDisabled}
           >
             {(provided, snapshot) => (
