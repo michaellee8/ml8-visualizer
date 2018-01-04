@@ -166,7 +166,7 @@ export default injectSheet({
   },
   flexContainer: {
     display: "inline-flex",
-    flexWrap: "wrap",
+    flexWrap: "no-wrap",
     flexDirection: "row",
     alignItems: "flex-start"
   }

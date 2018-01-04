@@ -34,13 +34,14 @@
     "serve": "^6.4.3"
   },
   "scripts": {
-    "now-build": "node scripts/debug-build.js",
+    "now-build": "node userscripts/debug-build.js",
     "now-start": "serve --single ./build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "firebase-deploy": "npm install --prefix ./functions && firebase deploy --token \"$FIREBASE_TOKEN\" --project ml8-visualizer",
+    "firebase-deploy":
+      "npm install --prefix ./functions && firebase deploy --token \"$FIREBASE_TOKEN\" --project ml8-visualizer",
     "flow": "flow"
   }
 }

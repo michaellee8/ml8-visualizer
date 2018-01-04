@@ -13,10 +13,6 @@ function intToRGB(i) {
   return "00000".substring(0, 6 - c.length) + c;
 }
 
-function formatNumber(n) {
-  return ("0" + n).slice(-2);
-}
-
 function rgbToHsl(r, g, b) {
   (r /= 255), (g /= 255), (b /= 255);
   var max = Math.max(r, g, b),

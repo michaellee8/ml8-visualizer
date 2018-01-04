@@ -10,20 +10,95 @@ import Dialog, {
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle
+  DialogTitle,
+  withMobileDialog
 } from "material-ui/Dialog";
+import TextField from "material-ui/TextField";
 import { withRouter } from "react-router";
 
 type Props = { nodeId: string, userId: string, classes: any, history: any };
-type State = { disableEditDrag: boolean, horizontalDropDisabled: boolean };
+type State = {
+  disableEditDrag: boolean,
+  horizontalDropDisabled: boolean,
+  editDialogOpen: boolean,
+  editDialogMode: "edit" | "add",
+  editDialogId: string,
+  editDialogContent: string,
+  editDialogBlockAction: boolean
+};
 
 class Dashboard extends React.Component<Props, State> {
   constructor(props) {
     super(props);
     this.onDragEnd = this.onDragEnd.bind(this);
     this.onDragStart = this.onDragStart.bind(this);
-    this.state = { disableEditDrag: false, horizontalDropDisabled: false };
+    this.state = {
+      disableEditDrag: false,
+      horizontalDropDisabled: false,
+      editDialogOpen: false,
+      editDialogMode: "edit",
+      editDialogId: "",
+      editDialogContent: "",
+      editDialogBlockAction: false
+    };
   }
+  handleEditDialogClose = () => this.setState({ editDialogOpen: false });
+  handleEditDialogContentChange = event =>
+    this.setState({ editDialogContent: event.target.value });
+  handleEditDialogDelete = () => {
+    if (this.state.editDialogBlockAction === true) {
+      return;
+    }
+    this.setState({ editDialogBlockAction: true });
+    if (!window.confirm("Do you sure you want to delete?")) {
+      return;
+    }
+    return firebase
+      .firestore()
+      .collection("users")
+      .doc(this.state.editDialogId.split("/")[0])
+      .collection("connections")
+      .where("des", "==", this.state.editDialogId.split("/")[1])
+      .get()
+      .then(querySnapshot =>
+        Promise.all(querySnapshot.docs.map(doc => doc.ref.delete()))
+      )
+      .then(() =>
+        firebase
+          .firestore()
+          .collection("users")
+          .doc(this.state.editDialogId.split("/")[0])
+          .collection("connections")
+          .where("src", "==", this.state.editDialogId.split("/")[1])
+          .get()
+      )
+      .then(querySnapshot =>
+        Promise.all(querySnapshot.docs.map(doc => doc.ref.delete()))
+      )
+      .then(() =>
+        firebase
+          .firestore()
+          .collection("users")
+          .doc(this.state.editDialogId.split("/")[0])
+          .collection("nodes")
+          .doc(this.state.editDialogId.split("/")[1])
+          .delete()
+      )
+      .then(() => {
+        this.handleEditDialogClose();
+        this.setState({ editDialogBlockAction: false });
+      })
+      .catch(err => {
+        window.alert("Some promblem happened, delete failed");
+        console.log(err);
+      });
+  };
+  handleEditDialogAdd = () => {
+    this.setState({ editDialogBlockAction: true });
+  };
+  handleEditDialogEdit = () => {
+    this.setState({ editDialogBlockAction: true });
+  };
   onDragStart(initial) {}
   onDragEnd(result) {
     // No destination
@@ -33,8 +108,8 @@ class Dashboard extends React.Component<Props, State> {
 
     // Drop to upDrop -> navigate
     if (
-      result.destination.droppableId == "upDrop" ||
-      result.destination.droppableId == "upDropCol"
+      result.destination.droppableId === "upDrop" ||
+      result.destination.droppableId === "upDropCol"
     ) {
       this.props.history.push(`/${result.draggableId}`);
       return;
@@ -42,8 +117,8 @@ class Dashboard extends React.Component<Props, State> {
 
     // Drop to editDrop -> edit component
     if (
-      result.destination.droppableId == "editDrop" ||
-      result.destination.droppableId == "editDropCol"
+      result.destination.droppableId === "editDrop" ||
+      result.destination.droppableId === "editDropCol"
     ) {
       // Implement later
       return;
@@ -51,8 +126,8 @@ class Dashboard extends React.Component<Props, State> {
 
     // Drag from editDrag -> insert new component
     if (
-      result.draggableId == "editDrag" ||
-      result.draggableId == "editDragCol"
+      result.draggableId === "editDrag" ||
+      result.draggableId === "editDragCol"
     ) {
       // Implement Later
       return;
@@ -62,29 +137,102 @@ class Dashboard extends React.Component<Props, State> {
     firebase
       .firestore()
       .collection("users")
-      .doc(this.props.userId)
+      .doc(result.destination.droppableId.split("/")[0])
       .collection("connections")
       .where("src", "==", result.destination.droppableId.split("/")[1])
       .orderBy("stamp", "desc")
-      .get(querySnapshot => {
-        var datas = [];
-        querySnapshot.forEach(doc => datas.push(doc));
-        var itemIndex = -1;
-        for (var i = 0; i < datas.length; i++) {
-          if (datas[i].data().des == result.draggableId.split("/")[1]) {
-            itemIndex = i;
-            break;
-          }
+      .get()
+      .then(querySnapshot => {
+        var { docs } = querySnapshot;
+        var stamp;
+        if (result.destination.index === 0) {
+          stamp = Date.now();
+        } else if (result.destination.index === docs.length - 1) {
+          stamp = docs[docs.length - 1].data().stamp - 1000;
+        } else {
+          stamp =
+            (docs[result.destination.index].data().stamp +
+              docs[result.destination.index - 1].data().stamp) /
+            2;
         }
-        if (itemIndex == -1) {
-          throw "Cannot find the corresponding connection";
-        }
-        const newStamp = ite;
-      });
+        return firebase
+          .firestore()
+          .collection("users")
+          .doc(result.destination.droppableId.split("/")[0])
+          .collection("connections")
+          .where("des", "==", result.draggableId.split("/")[1])
+          .get()
+          .then(querySnapshot => {
+            console.log(querySnapshot);
+            return firebase
+              .firestore()
+              .collection("users")
+              .doc(result.destination.droppableId.split("/")[0])
+              .collection("connections")
+              .doc(querySnapshot.docs[0].id)
+              .set(
+                {
+                  stamp: stamp,
+                  src: result.destination.droppableId.split("/")[1]
+                },
+                { merge: true }
+              );
+          });
+      })
+      .catch(err => console.log(err));
+    return;
   }
   render() {
     return (
       <div>
+        <Dialog
+          fullScreen={this.props.fullScreen}
+          open={this.state.editDialogOpen}
+          onClose={this.handleEditDialogClose}
+        >
+          <DialogTitle>{`${this.state.editDialogMode}ing ${
+            this.state.editDialogId
+          }`}</DialogTitle>
+          <DialogContent>
+            <TextField
+              multiline
+              label="Content"
+              value={this.state.editDialogContent}
+              onChange={this.handleEditDialogContentChange}
+              margin="normal"
+            />
+          </DialogContent>
+          <DialogActions>
+            {this.state.editDialogMode === "edit" ? (
+              <Button
+                raised
+                color="accent"
+                onClick={this.handleEditDialogDelete}
+              >
+                DELETE
+              </Button>
+            ) : null}
+            {this.state.editDialogMode === "delete" ? (
+              <div style={{ flex: "1 1 auto" }} />
+            ) : null}
+            {this.state.editDialogMode === "edit" ? (
+              <Button
+                raised
+                color="primary"
+                onClick={this.handleEditDialogEdit}
+              >
+                EDIT
+              </Button>
+            ) : (
+              <Button raised color="primary" onClick={this.handleEditDialogAdd}>
+                ADD
+              </Button>
+            )}
+            <Button color="secondary" onClick={this.handleEditDialogClose}>
+              CANCEL
+            </Button>
+          </DialogActions>
+        </Dialog>
         <DragDropContext
           onDragStart={this.onDragStart}
           onDragEnd={this.onDragEnd}
@@ -290,5 +438,5 @@ export default withRouter(
       "box-shadow": "0px 3px 2px 0px rgba(50, 50, 50, 0.2)"
     },
     appBarButton: { width: "25%", height: "100%", display: "inline-block" }
-  })(Dashboard)
+  })(withMobileDialog()(Dashboard))
 );
