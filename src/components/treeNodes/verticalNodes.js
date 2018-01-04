@@ -119,7 +119,7 @@ class VerticalNodes extends React.Component<Props, State> {
                             backgroundColor: idToColor(
                               `${this.props.userId}/${this.props.nodeId}`
                             ),
-                            minHeight: "7em"
+                            minHeight: "12em"
                           }}
                         >
                           {this.state.connectionData.map(connectionData => (

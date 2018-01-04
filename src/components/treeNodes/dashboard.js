@@ -94,10 +94,58 @@ class Dashboard extends React.Component<Props, State> {
       });
   };
   handleEditDialogAdd = () => {
+    if (this.state.editDialogBlockAction === true) {
+      return;
+    }
     this.setState({ editDialogBlockAction: true });
+    return firebase
+      .firestore()
+      .collection("users")
+      .doc(this.state.editDialogId.split("/")[0])
+      .collection("nodes")
+      .add({ text: this.state.editDialogContent })
+      .then(docRef =>
+        firebase
+          .firestore()
+          .collection("users")
+          .doc(this.state.editDialogId.split("/")[0])
+          .collection("connections")
+          .add({
+            stamp: Date.now(),
+            type: "primary",
+            src: this.state.editDialogId.split("/")[1],
+            des: docRef.id
+          })
+      )
+      .then(() => {
+        this.handleEditDialogClose();
+        this.setState({ editDialogBlockAction: false });
+      })
+      .catch(err => {
+        window.alert("Add nodes failed.");
+        console.log(err);
+      });
   };
   handleEditDialogEdit = () => {
+    if (this.state.editDialogBlockAction === true) {
+      return;
+    }
     this.setState({ editDialogBlockAction: true });
+    return firebase
+      .firestore()
+      .collection("users")
+      .doc(this.state.editDialogId.split("/")[0])
+      .collection("nodes")
+      .doc(this.state.editDialogId.split("/")[1])
+      .set({ text: this.state.editDialogContent }, { merge: true })
+      .then(() => {
+        this.handleEditDialogClose();
+        this.setState({ editDialogBlockAction: false });
+      })
+      .catch(err => {
+        window.alert("Edit nodes failed.");
+        console.log(err);
+      });
   };
   onDragStart(initial) {}
   onDragEnd(result) {
@@ -120,8 +168,25 @@ class Dashboard extends React.Component<Props, State> {
       result.destination.droppableId === "editDrop" ||
       result.destination.droppableId === "editDropCol"
     ) {
-      // Implement later
-      return;
+      return firebase
+        .firestore()
+        .collection("users")
+        .doc(result.draggableId.split("/")[0])
+        .collection("nodes")
+        .doc(result.draggableId.split("/")[1])
+        .get()
+        .then(doc =>
+          this.setState({
+            editDialogOpen: true,
+            editDialogContent: doc.data().text,
+            editDialogId: result.draggableId,
+            editDialogMode: "edit"
+          })
+        )
+        .catch(err => {
+          window.alert("Edit nodes failed.");
+          console.log(err);
+        });
     }
 
     // Drag from editDrag -> insert new component
@@ -129,8 +194,12 @@ class Dashboard extends React.Component<Props, State> {
       result.draggableId === "editDrag" ||
       result.draggableId === "editDragCol"
     ) {
-      // Implement Later
-      return;
+      return this.setState({
+        editDialogOpen: true,
+        editDialogContent: "",
+        editDialogId: result.destination.droppableId,
+        editDialogMode: "add"
+      });
     }
 
     // Insert to correct place for reordering/inserting
@@ -202,7 +271,9 @@ class Dashboard extends React.Component<Props, State> {
               margin="normal"
             />
           </DialogContent>
-          <DialogActions>
+          <DialogActions
+            classes={{ root: this.props.classes.muiDialogActionsRoot }}
+          >
             {this.state.editDialogMode === "edit" ? (
               <Button
                 raised
@@ -212,8 +283,8 @@ class Dashboard extends React.Component<Props, State> {
                 DELETE
               </Button>
             ) : null}
-            {this.state.editDialogMode === "delete" ? (
-              <div style={{ flex: "1 1 auto" }} />
+            {this.state.editDialogMode === "edit" ? (
+              <div style={{ width: "100%" }} className="" />
             ) : null}
             {this.state.editDialogMode === "edit" ? (
               <Button
