@@ -5,7 +5,7 @@ admin.initializeApp(functions.config().firebase);
 const mockDb = {
   nodes: {
     root: {
-      text: "Most used websites"
+      text: "root"
     },
     I5zla: {
       text: "Google"
