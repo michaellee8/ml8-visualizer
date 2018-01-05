@@ -311,7 +311,7 @@ class Dashboard extends React.Component<Props, State> {
         >
           <div className={this.props.classes.appBar}>
             <Button
-              className={this.props.classes.appBarButton}
+              className={this.props.classes.appBarButtonSmall}
               onClick={() =>
                 firebase
                   .firestore()
@@ -533,7 +533,7 @@ export default withRouter(
       "background-color": "rgba(255,255,255,1)",
       "box-shadow": "0px 3px 2px 0px rgba(50, 50, 50, 0.2)"
     },
-    appBarButton: { width: "22.5%", height: "100%", display: "inline-block" },
-    appBarButton: { width: "10%", height: "100%", display: "inline-block" }
+    appBarButton: { width: "20%", height: "100%", display: "inline-block" },
+    appBarButtonSmall: { width: "10%", height: "100%", display: "inline-block" }
   })(withMobileDialog()(Dashboard))
 );
