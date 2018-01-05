@@ -20,14 +20,15 @@ export default class App extends React.Component<Props, State> {
     this.state = { isLoggedIn: false, currentUserId: "" };
   }
   componentWillMount() {
-    this.authWatcher = firebase
-      .auth()
-      .onAuthStateChanged(
-        user =>
-          user
-            ? this.setState({ isLoggedIn: true, currentUserId: user.uid })
-            : this.setState({ isLoggedIn: false, currentUserId: "" })
-      );
+    this.authWatcher = firebase.auth().onAuthStateChanged(user => {
+      user
+        ? this.setState({ isLoggedIn: true, currentUserId: user.uid }, () =>
+            this.forceUpdate()
+          )
+        : this.setState({ isLoggedIn: false, currentUserId: "" }, () =>
+            this.forceUpdate()
+          );
+    });
   }
   componentWillUnmount() {
     this.authWatcher();
@@ -42,8 +43,6 @@ export default class App extends React.Component<Props, State> {
           <Router>
             <div>
               <Switch>
-                <Route exact path="/login" component={LoginComponent} />
-                <Route exact path="/logout" component={LogoutComponent} />
                 <Route
                   exact
                   path="/:userId/:nodeId"
@@ -54,13 +53,17 @@ export default class App extends React.Component<Props, State> {
                     />
                   )}
                 />
-                <Redirect
-                  to={
-                    this.state.isLoggedIn
-                      ? `${this.state.currentUserId}/root`
-                      : "/login"
-                  }
-                />
+                {this.state.isLoggedIn ? (
+                  <Redirect to={`${this.state.currentUserId}/root`} />
+                ) : null}
+                <Route exact path="/login" component={LoginComponent} />
+                <Route exact path="/logout" component={LogoutComponent} />
+
+                {this.state.isLoggedIn ? (
+                  <Redirect to={`${this.state.currentUserId}/root`} />
+                ) : (
+                  <Redirect to={"/login"} />
+                )}
               </Switch>
             </div>
           </Router>

@@ -13,5 +13,4 @@ firebase.initializeApp({
   storageBucket: "ml8-visualizer.appspot.com",
   messagingSenderId: "752477759795"
 });
-firebase.firestore().enablePersistence();
 render(<App />, document.getElementById("root"));
