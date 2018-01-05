@@ -22,12 +22,8 @@ export default class App extends React.Component<Props, State> {
   componentWillMount() {
     this.authWatcher = firebase.auth().onAuthStateChanged(user => {
       user
-        ? this.setState({ isLoggedIn: true, currentUserId: user.uid }, () =>
-            this.forceUpdate()
-          )
-        : this.setState({ isLoggedIn: false, currentUserId: "" }, () =>
-            this.forceUpdate()
-          );
+        ? this.setState({ isLoggedIn: true, currentUserId: user.uid })
+        : this.setState({ isLoggedIn: false, currentUserId: "" });
     });
   }
   componentWillUnmount() {

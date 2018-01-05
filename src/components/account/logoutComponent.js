@@ -9,14 +9,16 @@ class LogoutComponent extends React.Component {
         <div>Click the button below to log out</div>
         <button
           className={this.props.classes.signOutButton}
-          onClick={firebase
-            .auth()
-            .signOut()
-            .then(() => this.props.history.push("/"))
-            .catch(err => {
-              alert("Some problem occured, you did not signOut");
-              console.error(err);
-            })}
+          onClick={() =>
+            firebase
+              .auth()
+              .signOut()
+              .then(() => this.props.history.push("/"))
+              .catch(err => {
+                alert("Some problem occured, you did not signOut");
+                console.error(err);
+              })
+          }
         />
       </div>
     );
