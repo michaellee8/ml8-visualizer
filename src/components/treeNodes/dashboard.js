@@ -3,6 +3,7 @@ import firebase from "firebase";
 import injectSheet from "react-jss";
 import UpIcon from "material-ui-icons/ChangeHistory";
 import EditIcon from "material-ui-icons/ModeEdit";
+import BackIcon from "material-ui-icons/ArrowBack";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import HorizontalNodes from "./horizontalNodes";
 import Button from "material-ui/Button";
@@ -309,6 +310,30 @@ class Dashboard extends React.Component<Props, State> {
           onDragEnd={this.onDragEnd}
         >
           <div className={this.props.classes.appBar}>
+            <Button
+              className={this.props.classes.appBarButton}
+              onClick={() =>
+                firebase
+                  .firestore()
+                  .collection("users")
+                  .doc(this.props.userId)
+                  .collection("connections")
+                  .where("des", "==", this.props.nodeId)
+                  .get()
+                  .then(
+                    querySnapshot =>
+                      querySnapshot.docs[0]
+                        ? this.props.history.push(
+                            `/${this.props.userId}/${
+                              querySnapshot.docs[0].data().src
+                            }`
+                          )
+                        : null
+                  )
+              }
+            >
+              <BackIcon />
+            </Button>
             <div className={this.props.classes.appBarButton}>
               <Droppable droppableId="upDrop">
                 {(provided, snapshot) => (
@@ -508,6 +533,7 @@ export default withRouter(
       "background-color": "rgba(255,255,255,1)",
       "box-shadow": "0px 3px 2px 0px rgba(50, 50, 50, 0.2)"
     },
-    appBarButton: { width: "25%", height: "100%", display: "inline-block" }
+    appBarButton: { width: "22.5%", height: "100%", display: "inline-block" },
+    appBarButton: { width: "10%", height: "100%", display: "inline-block" }
   })(withMobileDialog()(Dashboard))
 );
