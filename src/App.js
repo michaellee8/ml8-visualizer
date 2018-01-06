@@ -49,6 +49,7 @@ export default class App extends React.Component<Props, State> {
                     />
                   )}
                 />
+                <Route exact path="/logout" component={LogoutComponent} />
                 {this.state.isLoggedIn ? (
                   <Redirect to={`${this.state.currentUserId}/root`} />
                 ) : null}

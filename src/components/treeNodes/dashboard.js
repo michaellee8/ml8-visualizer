@@ -25,7 +25,8 @@ type State = {
   editDialogMode: "edit" | "add",
   editDialogId: string,
   editDialogContent: string,
-  editDialogBlockAction: boolean
+  editDialogBlockAction: boolean,
+  editDialogNewStamp: double | integer
 };
 
 class Dashboard extends React.Component<Props, State> {
@@ -112,7 +113,7 @@ class Dashboard extends React.Component<Props, State> {
           .doc(this.state.editDialogId.split("/")[0])
           .collection("connections")
           .add({
-            stamp: Date.now(),
+            stamp: this.state.editDialogNewStamp,
             type: "primary",
             src: this.state.editDialogId.split("/")[1],
             des: docRef.id
@@ -195,12 +196,45 @@ class Dashboard extends React.Component<Props, State> {
       result.draggableId === "editDrag" ||
       result.draggableId === "editDragCol"
     ) {
-      return this.setState({
-        editDialogOpen: true,
-        editDialogContent: "",
-        editDialogId: result.destination.droppableId,
-        editDialogMode: "add"
-      });
+      var stamp;
+      return firebase
+        .firestore()
+        .collection("users")
+        .doc(result.destination.droppableId.split("/")[0])
+        .collection("connections")
+        .where("src", "==", result.destination.droppableId.split("/")[1])
+        .orderBy("stamp", "desc")
+        .get()
+        .then(querySnapshot => {
+          var { docs } = querySnapshot;
+          var stamp;
+          if (result.destination.index === 0) {
+            stamp = Date.now();
+          } else if (
+            result.destination.index === docs.length - 1 ||
+            result.destination.index === docs.length
+          ) {
+            stamp = docs[docs.length - 1].data().stamp - 1000;
+          } else {
+            // console.log(
+            //   result.destination.index,
+            //   docs[result.destination.index],
+            //   docs[result.destination.index - 1],
+            //   docs.length
+            // );
+            stamp =
+              (docs[result.destination.index].data().stamp +
+                docs[result.destination.index - 1].data().stamp) /
+              2;
+          }
+          return this.setState({
+            editDialogOpen: true,
+            editDialogContent: "",
+            editDialogId: result.destination.droppableId,
+            editDialogMode: "add",
+            editDialogNewStamp: stamp
+          });
+        });
     }
 
     // Insert to correct place for reordering/inserting
